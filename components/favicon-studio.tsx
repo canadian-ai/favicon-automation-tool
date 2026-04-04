@@ -188,7 +188,8 @@ export function FaviconStudio({
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             {/* Left: Controls */}
-            <TabsContent value="text" className="mt-0 space-y-5">
+            <div>
+              <TabsContent value="text" className="mt-0 space-y-5">
               <FieldGroup className="gap-5">
                 <Field>
                   <FieldLabel htmlFor="text">Text / Initials</FieldLabel>
@@ -315,9 +316,9 @@ export function FaviconStudio({
                   </Select>
                 </Field>
               </FieldGroup>
-            </TabsContent>
+              </TabsContent>
             
-            <TabsContent value="upload" className="mt-0 space-y-5">
+              <TabsContent value="upload" className="mt-0 space-y-5">
               <FieldGroup className="gap-5">
                 {/* File Upload */}
                 <Field>
@@ -411,7 +412,8 @@ export function FaviconStudio({
                   </p>
                 </div>
               </FieldGroup>
-            </TabsContent>
+              </TabsContent>
+            </div>
 
             {/* Right: Preview - shown for both tabs */}
             <div className="flex flex-col items-center justify-center gap-6 p-6 rounded-lg bg-muted/50">
