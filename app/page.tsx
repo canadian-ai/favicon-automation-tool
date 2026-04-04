@@ -20,6 +20,7 @@ import type {
   FileChange,
   PRResult,
   TimingMetrics,
+  ImageInput,
 } from "@/lib/types";
 import { DEFAULT_FAVICON_CONFIG } from "@/lib/types";
 
@@ -33,6 +34,7 @@ export default function FaviconManager() {
   const [selectedRepo, setSelectedRepo] = useState<Repository | null>(null);
   const [analysis, setAnalysis] = useState<ProjectAnalysis | null>(null);
   const [faviconConfig, setFaviconConfig] = useState<FaviconConfig>(DEFAULT_FAVICON_CONFIG);
+  const [customImage, setCustomImage] = useState<ImageInput | null>(null);
   const [generatedFavicon, setGeneratedFavicon] = useState<GeneratedFavicon | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [prResult, setPRResult] = useState<PRResult | null>(null);
@@ -85,8 +87,20 @@ export default function FaviconManager() {
     const start = performance.now();
     
     try {
-      const generated = await generateAllFormats(faviconConfig);
-      setGeneratedFavicon(generated);
+      // If we have a custom image, use it directly
+      if (customImage) {
+        const generated: GeneratedFavicon = {
+          svg: customImage.type === "svg" ? customImage.data : "",
+          icoBase64: customImage.type === "ico" ? customImage.data : "",
+          png32Base64: customImage.type === "png" ? customImage.data : "",
+          png192Base64: customImage.type === "png" ? customImage.data : "",
+          png512Base64: customImage.type === "png" ? customImage.data : "",
+        };
+        setGeneratedFavicon(generated);
+      } else {
+        const generated = await generateAllFormats(faviconConfig);
+        setGeneratedFavicon(generated);
+      }
       setTiming((t) => ({
         ...t,
         faviconGeneration: performance.now() - start,
@@ -95,7 +109,7 @@ export default function FaviconManager() {
     } finally {
       setIsGenerating(false);
     }
-  }, [faviconConfig]);
+  }, [faviconConfig, customImage]);
 
   const handlePRCreated = useCallback(
     (result: PRResult, changes: FileChange[]) => {
@@ -116,6 +130,7 @@ export default function FaviconManager() {
     setSelectedRepo(null);
     setAnalysis(null);
     setGeneratedFavicon(null);
+    setCustomImage(null);
     setPRResult(null);
     setFileChanges([]);
     setTiming({});
@@ -160,6 +175,8 @@ export default function FaviconManager() {
             onGenerate={handleGenerateFavicon}
             isGenerating={isGenerating}
             generatedFavicon={generatedFavicon}
+            customImage={customImage}
+            onCustomImageChange={setCustomImage}
           />
         );
       
