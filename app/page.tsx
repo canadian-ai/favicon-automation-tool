@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Zap, Github, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Zap, Github, ArrowLeft, CheckCircle2, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TokenInput } from "@/components/token-input";
@@ -273,6 +273,52 @@ export default function FaviconManager() {
           <SpeedComparison totalMs={timing.total} />
         )}
       </div>
+
+      {/* CLI Documentation Section */}
+      {step === "token" && (
+        <section className="container mx-auto px-4 py-8 border-t">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-center gap-2 mb-4">
+              <Terminal className="size-5 text-muted-foreground" />
+              <h2 className="text-lg font-semibold">CLI for Agents</h2>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Use the CLI for automated workflows, CI/CD pipelines, or agent-based systems. 
+              Supports custom images, JSON output, and dry-run mode.
+            </p>
+            
+            <div className="bg-muted/50 rounded-lg p-4 font-mono text-sm space-y-3">
+              <div>
+                <span className="text-muted-foreground"># Analyze a repository</span>
+                <pre className="mt-1">npx favicon-manager analyze owner/repo --output json</pre>
+              </div>
+              <div>
+                <span className="text-muted-foreground"># Apply custom SVG favicon</span>
+                <pre className="mt-1">npx favicon-manager apply owner/repo --svg ./icon.svg</pre>
+              </div>
+              <div>
+                <span className="text-muted-foreground"># Generate from text with custom colors</span>
+                <pre className="mt-1">npx favicon-manager apply owner/repo --text &quot;AB&quot; --background &quot;#10B981&quot;</pre>
+              </div>
+              <div>
+                <span className="text-muted-foreground"># Use image URL</span>
+                <pre className="mt-1">npx favicon-manager apply owner/repo --url https://example.com/logo.png</pre>
+              </div>
+              <div>
+                <span className="text-muted-foreground"># Dry run (preview changes)</span>
+                <pre className="mt-1">npx favicon-manager apply owner/repo --svg ./icon.svg --dry-run</pre>
+              </div>
+            </div>
+            
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Badge variant="outline">JSON Output</Badge>
+              <Badge variant="outline">Custom Images</Badge>
+              <Badge variant="outline">Dry Run Mode</Badge>
+              <Badge variant="outline">Agent-friendly</Badge>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="border-t mt-auto">

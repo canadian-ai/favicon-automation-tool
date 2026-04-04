@@ -100,3 +100,38 @@ export const DEFAULT_FAVICON_CONFIG: FaviconConfig = {
   fontFamily: 'Inter, system-ui, sans-serif',
   shape: 'rounded',
 };
+
+// CLI-specific types for agent workflows
+export interface CLIOptions {
+  token?: string;
+  repo: string;
+  branch?: string;
+  image?: string;
+  svg?: string;
+  text?: string;
+  background?: string;
+  color?: string;
+  shape?: 'circle' | 'square' | 'rounded';
+  output?: 'json' | 'text';
+  dryRun?: boolean;
+  verbose?: boolean;
+}
+
+export interface CLIResult {
+  success: boolean;
+  timing: {
+    total: number;
+    steps: Record<string, number>;
+  };
+  analysis?: ProjectAnalysis;
+  changes?: FileChange[];
+  pr?: PRResult;
+  error?: string;
+}
+
+export interface ImageInput {
+  type: 'svg' | 'png' | 'ico' | 'generated';
+  source: 'file' | 'url' | 'text';
+  data: string; // base64 or raw SVG content
+  originalPath?: string;
+}
