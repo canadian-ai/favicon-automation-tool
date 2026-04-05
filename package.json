@@ -1,9 +1,40 @@
 {
-  "name": "my-project",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@canadianai/favicon-manager",
+  "version": "1.0.0",
+  "description": "Fast, deterministic favicon management for Next.js projects. Add or update favicons via CLI or web UI with automatic PR creation.",
+  "author": "Canadian AI <hello@canadian.ai>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/canadian-ai/favicon-automation-tool.git"
+  },
+  "bugs": {
+    "url": "https://github.com/canadian-ai/favicon-automation-tool/issues"
+  },
+  "homepage": "https://github.com/canadian-ai/favicon-automation-tool#readme",
+  "keywords": [
+    "favicon",
+    "nextjs",
+    "next.js",
+    "cli",
+    "automation",
+    "github",
+    "pull-request",
+    "icon",
+    "svg",
+    "image-processing"
+  ],
   "bin": {
     "favicon-manager": "./cli/bin.js"
+  },
+  "files": [
+    "cli",
+    "lib",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
   },
   "scripts": {
     "dev": "next dev",
@@ -11,7 +42,8 @@
     "start": "next start",
     "lint": "eslint .",
     "cli": "tsx cli/index.ts",
-    "cli:build": "tsc -p cli/tsconfig.json"
+    "cli:build": "tsc -p cli/tsconfig.json",
+    "prepublishOnly": "npm run cli:build"
   },
   "dependencies": {
     "@babel/parser": "^7.24.0",
