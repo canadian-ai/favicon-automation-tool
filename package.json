@@ -43,6 +43,8 @@
     "lint": "eslint .",
     "cli": "tsx cli/index.ts",
     "cli:build": "tsc -p cli/tsconfig.json",
+    "release:check": "bash ./scripts/publish.sh --dry-run",
+    "release": "bash ./scripts/publish.sh",
     "prepublishOnly": "npm run cli:build"
   },
   "dependencies": {
