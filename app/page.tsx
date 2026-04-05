@@ -26,6 +26,39 @@ import { DEFAULT_FAVICON_CONFIG } from "@/lib/types";
 
 type Step = "token" | "repo" | "design" | "review" | "success";
 
+// Helper to resize base64 images using Canvas
+async function resizeBase64Image(base64: string, size: number): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    
+    if (!ctx) {
+      reject(new Error("Could not get canvas context"));
+      return;
+    }
+    
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, size, size);
+      const dataUrl = canvas.toDataURL("image/png");
+      const resizedBase64 = dataUrl.replace(/^data:image\/png;base64,/, "");
+      resolve(resizedBase64);
+    };
+    
+    img.onerror = () => {
+      // If resize fails, return original
+      resolve(base64);
+    };
+    
+    // Try to load from base64
+    img.src = `data:image/png;base64,${base64}`;
+  });
+}
+
 export default function FaviconManager() {
   // State
   const [step, setStep] = useState<Step>("token");
@@ -87,16 +120,46 @@ export default function FaviconManager() {
     const start = performance.now();
     
     try {
-      // If we have a custom image, use it directly
       if (customImage) {
-        const generated: GeneratedFavicon = {
-          svg: customImage.type === "svg" ? customImage.data : "",
-          icoBase64: customImage.type === "ico" ? customImage.data : "",
-          png32Base64: customImage.type === "png" ? customImage.data : "",
-          png192Base64: customImage.type === "png" ? customImage.data : "",
-          png512Base64: customImage.type === "png" ? customImage.data : "",
-        };
-        setGeneratedFavicon(generated);
+        // For custom images, we need to generate proper formats
+        if (customImage.type === "svg") {
+          // SVG - generate all formats from it
+          const [icoBase64, png32Base64, png192Base64, png512Base64] = await Promise.all([
+            import("@/lib/favicon-generator").then(m => m.svgToIco(customImage.data)),
+            import("@/lib/favicon-generator").then(m => m.svgToPng(customImage.data, 32)),
+            import("@/lib/favicon-generator").then(m => m.svgToPng(customImage.data, 192)),
+            import("@/lib/favicon-generator").then(m => m.svgToPng(customImage.data, 512)),
+          ]);
+          setGeneratedFavicon({
+            svg: customImage.data,
+            icoBase64,
+            png32Base64,
+            png192Base64,
+            png512Base64,
+          });
+        } else {
+          // PNG/ICO - create an SVG wrapper and use the image data
+          // We'll create a minimal SVG that embeds the image as base64
+          const mimeType = customImage.type === "ico" ? "image/x-icon" : "image/png";
+          const wrappedSvg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100" width="100" height="100">
+  <image width="100" height="100" xlink:href="data:${mimeType};base64,${customImage.data}"/>
+</svg>`;
+          
+          // Also generate PNG versions from the base64 image
+          const [png32Base64, png192Base64, png512Base64] = await Promise.all([
+            resizeBase64Image(customImage.data, 32),
+            resizeBase64Image(customImage.data, 192),
+            resizeBase64Image(customImage.data, 512),
+          ]);
+          
+          setGeneratedFavicon({
+            svg: wrappedSvg,
+            icoBase64: customImage.data, // Use original for ICO
+            png32Base64,
+            png192Base64,
+            png512Base64,
+          });
+        }
       } else {
         const generated = await generateAllFormats(faviconConfig);
         setGeneratedFavicon(generated);
