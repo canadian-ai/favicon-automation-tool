@@ -1,9 +1,20 @@
 import * as recast from "recast";
-import * as tsParser from "recast/parsers/typescript";
+import { parse as babelParse } from "@babel/parser";
 import type { TransformResult } from "./types";
 
 const b = recast.types.builders;
 const n = recast.types.namedTypes;
+
+// Custom TypeScript parser for recast using @babel/parser
+const tsParser = {
+  parse(source: string) {
+    return babelParse(source, {
+      sourceType: "module",
+      plugins: ["typescript", "jsx"],
+      tokens: true,
+    });
+  },
+};
 
 /**
  * Transforms a Next.js App Router layout.tsx to add favicon metadata
