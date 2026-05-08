@@ -10,6 +10,36 @@ export const metadata: Metadata = {
     generator: 'v0.app',
     icons: {
         icon: [{
+                url: "/icon-white-16x16.png",
+                sizes: "16x16",
+                type: "image/png",
+                media: "(prefers-color-scheme: light)"
+            }, {
+                url: "/icon-white-32x32.png",
+                sizes: "32x32",
+                type: "image/png",
+                media: "(prefers-color-scheme: light)"
+            }, {
+                url: "/icon-white-48x48.png",
+                sizes: "48x48",
+                type: "image/png",
+                media: "(prefers-color-scheme: light)"
+            }, {
+                url: "/icon-black-16x16.png",
+                sizes: "16x16",
+                type: "image/png",
+                media: "(prefers-color-scheme: dark)"
+            }, {
+                url: "/icon-black-32x32.png",
+                sizes: "32x32",
+                type: "image/png",
+                media: "(prefers-color-scheme: dark)"
+            }, {
+                url: "/icon-black-48x48.png",
+                sizes: "48x48",
+                type: "image/png",
+                media: "(prefers-color-scheme: dark)"
+            }, {
                 url: "/icon-16x16.png",
                 sizes: "16x16",
                 type: "image/png"
