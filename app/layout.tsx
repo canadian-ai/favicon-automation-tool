@@ -10,6 +10,14 @@ export const metadata: Metadata = {
     generator: 'v0.app',
     icons: {
         icon: [{
+                url: "/icon-black.svg",
+                type: "image/svg+xml",
+                media: "(prefers-color-scheme: light)"
+            }, {
+                url: "/icon-white.svg",
+                type: "image/svg+xml",
+                media: "(prefers-color-scheme: dark)"
+            }, {
                 url: "/icon-black-16x16.png",
                 sizes: "16x16",
                 type: "image/png",
