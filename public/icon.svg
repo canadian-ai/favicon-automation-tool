@@ -1,8 +1,8 @@
 
   <svg width="512" height="512" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
     <style>
-      .light-mark { fill: #ffffff; }
-      .dark-mark { display: none; fill: #000000; }
+      .light-mark { fill: #000000; }
+      .dark-mark { display: none; fill: #ffffff; }
       @media (prefers-color-scheme: dark) {
         .light-mark { display: none; }
         .dark-mark { display: block; }
