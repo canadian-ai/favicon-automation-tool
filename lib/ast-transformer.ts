@@ -119,48 +119,97 @@ export function transformLayoutMetadata(
 }
 
 /**
- * Updates the metadata object to include/update the icons property
+ * Returns true if an object member is keyed `icons`.
+ * @babel/parser emits `ObjectProperty`/`ObjectMethod` (not ESTree `Property`),
+ * and keys may be identifiers (`icons`) or string literals (`"icons"`).
+ */
+function isIconsMember(prop: unknown): boolean {
+  if (
+    !n.Property.check(prop) &&
+    !n.ObjectProperty.check(prop) &&
+    !n.ObjectMethod.check(prop)
+  ) {
+    return false;
+  }
+  const node = prop as { key: unknown; computed?: boolean };
+  const key = node.key;
+  if (n.Identifier.check(key)) return !node.computed && key.name === "icons";
+  if (n.StringLiteral.check(key) || n.Literal.check(key)) {
+    return (key as { value: unknown }).value === "icons";
+  }
+  return false;
+}
+
+/**
+ * Sets metadata.icons to `{ icon: faviconPath }`, overriding any existing
+ * value (object, array, or string) and removing duplicate `icons` keys
+ * left behind by earlier runs.
  */
 function updateMetadataObject(
   obj: recast.types.namedTypes.ObjectExpression,
   faviconPath: string
 ): boolean {
-  // Find existing icons property
-  let iconsProperty: recast.types.namedTypes.Property | null = null;
-  let iconsIndex = -1;
-  
-  for (let i = 0; i < obj.properties.length; i++) {
-    const prop = obj.properties[i];
-    if (
-      n.Property.check(prop) &&
-      n.Identifier.check(prop.key) &&
-      prop.key.name === "icons"
-    ) {
-      iconsProperty = prop;
-      iconsIndex = i;
-      break;
-    }
-  }
-  
-  // Create the new icons value
+  const before = recast.print(obj).code;
+
   const iconsValue = b.objectExpression([
-    b.property(
-      "init",
-      b.identifier("icon"),
-      b.literal(faviconPath)
-    ),
+    b.objectProperty(b.identifier("icon"), b.stringLiteral(faviconPath)),
   ]);
-  
-  if (iconsProperty) {
-    // Update existing icons property
-    iconsProperty.value = iconsValue;
+  const iconsProp = b.objectProperty(b.identifier("icons"), iconsValue);
+
+  const firstIndex = obj.properties.findIndex(isIconsMember);
+
+  if (firstIndex === -1) {
+    obj.properties.push(iconsProp);
   } else {
-    // Add new icons property
-    const newProp = b.property("init", b.identifier("icons"), iconsValue);
-    obj.properties.push(newProp);
+    obj.properties = obj.properties.filter(
+      (prop, i) => i === firstIndex || !isIconsMember(prop)
+    );
+    obj.properties[firstIndex] = iconsProp;
   }
-  
-  return true;
+
+  return recast.print(obj).code !== before;
+}
+
+function isFaviconLink(child: unknown): boolean {
+  if (!n.JSXElement.check(child)) return false;
+  const opening = child.openingElement;
+  if (!n.JSXIdentifier.check(opening.name) || opening.name.name !== "link") {
+    return false;
+  }
+  return (opening.attributes ?? []).some((attr) => {
+    if (
+      n.JSXAttribute.check(attr) &&
+      n.JSXIdentifier.check(attr.name) &&
+      attr.name.name === "rel"
+    ) {
+      const value = attr.value;
+      if (n.StringLiteral.check(value) || n.Literal.check(value)) {
+        return value.value === "icon" || value.value === "shortcut icon";
+      }
+    }
+    return false;
+  });
+}
+
+function setJsxAttribute(
+  opening: recast.types.namedTypes.JSXOpeningElement,
+  name: string,
+  value: string
+): void {
+  const attributes = opening.attributes ?? [];
+  const newAttr = b.jsxAttribute(b.jsxIdentifier(name), b.stringLiteral(value));
+  const index = attributes.findIndex(
+    (attr) =>
+      n.JSXAttribute.check(attr) &&
+      n.JSXIdentifier.check(attr.name) &&
+      attr.name.name === name
+  );
+  if (index === -1) {
+    attributes.push(newAttr);
+  } else {
+    attributes[index] = newAttr;
+  }
+  opening.attributes = attributes;
 }
 
 /**
@@ -190,33 +239,20 @@ export function transformDocumentHead(
           n.JSXIdentifier.check(node.openingElement.name) &&
           node.openingElement.name.name === "Head"
         ) {
-          // Check if favicon link already exists
-          const hasExistingFavicon = node.children?.some((child) => {
-            if (n.JSXElement.check(child)) {
-              const opening = child.openingElement;
-              if (
-                n.JSXIdentifier.check(opening.name) &&
-                opening.name.name === "link"
-              ) {
-                return opening.attributes?.some((attr) => {
-                  if (
-                    n.JSXAttribute.check(attr) &&
-                    n.JSXIdentifier.check(attr.name) &&
-                    attr.name.name === "rel"
-                  ) {
-                    const value = attr.value;
-                    if (n.StringLiteral.check(value) || n.Literal.check(value)) {
-                      return value.value === "icon" || value.value === "shortcut icon";
-                    }
-                  }
-                  return false;
-                });
-              }
-            }
-            return false;
-          });
-          
-          if (!hasExistingFavicon) {
+          const children = node.children ?? [];
+          const before = recast.print(node).code;
+          const firstIconIndex = children.findIndex(isFaviconLink);
+
+          if (firstIconIndex !== -1) {
+            // Override the first existing favicon link and drop any duplicates
+            const first = children[firstIconIndex] as recast.types.namedTypes.JSXElement;
+            setJsxAttribute(first.openingElement, "href", faviconPath);
+            setJsxAttribute(first.openingElement, "type", "image/svg+xml");
+            node.children = children.filter(
+              (child, i) => i === firstIconIndex || !isFaviconLink(child)
+            );
+            changed = recast.print(node).code !== before;
+          } else {
             // Create favicon link element
             const faviconLink = b.jsxElement(
               b.jsxOpeningElement(
