@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Zap, Github, ArrowLeft, CheckCircle2, Terminal } from "lucide-react";
+import { Github, ArrowLeft, CheckCircle2, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TokenInput } from "@/components/token-input";
@@ -9,6 +9,8 @@ import { RepoBrowser } from "@/components/repo-browser";
 import { FaviconStudio } from "@/components/favicon-studio";
 import { PRCreator, PRSuccess } from "@/components/pr-creator";
 import { SpeedIndicator, SpeedComparison } from "@/components/speed-indicator";
+import { CaiLogo } from "@/components/cai-logo";
+import { BrandThemeToggle } from "@/components/brand-theme-toggle";
 import { generateAllFormats } from "@/lib/favicon-generator";
 import type { BrowserOctokit } from "@/lib/github-browser";
 import type {
@@ -270,21 +272,23 @@ export default function FaviconManager() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+    <main className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="size-8 rounded-lg bg-primary flex items-center justify-center">
-              <Zap className="size-4 text-primary-foreground" />
+            <div className="size-9 bg-foreground text-background flex items-center justify-center" aria-label="Canadian AI">
+              <CaiLogo className="size-6" />
             </div>
-            <span className="font-semibold">Favicon Manager</span>
+            <span className="font-semibold tracking-tight">Canadian AI</span>
+            <span className="hidden sm:inline text-muted-foreground text-sm">/ Favicon Studio</span>
             <Badge variant="secondary" className="hidden sm:flex">
               Browser-based
             </Badge>
           </div>
           
           <div className="flex items-center gap-3">
+            <BrandThemeToggle />
             {user && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <img
@@ -304,6 +308,14 @@ export default function FaviconManager() {
           </div>
         </div>
       </header>
+
+      {step === "token" && (
+        <section className="container mx-auto px-4 pt-12 pb-4 max-w-3xl text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--cai-color-text-action)] mb-3">Canadian AI / Developer tools</p>
+          <h1 className="font-serif text-4xl sm:text-5xl tracking-tight text-foreground">Favicons, without the busywork.</h1>
+          <p className="mt-4 text-muted-foreground text-sm sm:text-base">Generate production-ready icons and open a GitHub pull request in minutes.</p>
+        </section>
+      )}
 
       {/* Progress */}
       <div className="container mx-auto px-4 py-4">
@@ -405,7 +417,7 @@ export default function FaviconManager() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
-              <Zap className="size-4 text-amber-500" />
+              <CaiLogo className="size-4 text-foreground" />
               <span>
                 Deterministic AST transforms - 50x faster than LLM-based tools
               </span>
@@ -438,7 +450,7 @@ function StepIndicator({
   return (
     <div className="flex items-center gap-2">
       <div
-        className={`size-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+        className={`size-8 flex items-center justify-center text-sm font-medium transition-colors ${
           complete
             ? "bg-primary text-primary-foreground"
             : active
