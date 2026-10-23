@@ -1,0 +1,45 @@
+/* Canonical shadcn/Tailwind aliases for the Figma semantic palette.
+ * Import generated-tokens.css before this file; never define another gray scale.
+ * The --cai-* values switch with .dark, so most aliases need no overrides.
+ */
+:root {
+  --background: var(--cai-color-surface-background);
+  --foreground: var(--cai-color-text-body);
+  --card: var(--cai-color-surface-container-low);
+  --card-foreground: var(--cai-color-text-body);
+  --popover: var(--cai-color-surface-container-low);
+  --popover-foreground: var(--cai-color-text-body);
+  --primary: var(--foreground);
+  --primary-foreground: var(--background);
+  --secondary: var(--cai-color-surface-container-medium);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--cai-color-surface-container-low);
+  --muted-foreground: var(--cai-color-text-secondary);
+  --accent: var(--cai-color-surface-container-medium);
+  --accent-foreground: var(--foreground);
+  --destructive: var(--cai-color-surface-error-strong);
+  --destructive-foreground: var(--cai-color-text-on-error-strong);
+  --border: var(--cai-color-border-neutral-weak);
+  --input: var(--cai-color-border-neutral-weak);
+  --ring: var(--cai-color-border-focus);
+  --radius: 0rem;
+  --chart-1: var(--cai-color-chart-1);
+  --chart-2: var(--cai-color-chart-2);
+  --chart-3: var(--cai-color-chart-3);
+  --chart-4: var(--cai-color-chart-4);
+  --chart-5: var(--cai-color-chart-5);
+  --sidebar: var(--cai-color-surface-container-low);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--cai-color-surface-container-medium);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+}
+
+.dark {
+  /* Stronger boundaries against Void and Obsidian without black fills. */
+  --border: var(--cai-color-border-neutral-medium);
+  --input: var(--cai-color-border-neutral-medium);
+}
